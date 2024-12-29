@@ -339,7 +339,7 @@ def download_manga(url, chapter=None, min_max=None, height=None):
             break
         elif min_max and min_max[0] <= chapter_no <= min_max[1]:
             download_chapter(chapter_url, height)
-    # zip_final_pdfs()
+    zip_final_pdfs()
 
 
 def main():
