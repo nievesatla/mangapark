@@ -6,10 +6,13 @@ A script to download your favourite mangas on mangapark.me and convert them to `
 
 ```
 # Download chapter 20 for the manga Ajin Miura Tsuina 
-$ python3 main.py -m http://mangapark.me/manga/ajin-miura-tsuina/ --chapter 20 --size 1000
+$ python3 main.py -m http://mangapark.me/manga/ajin-miura-tsuina/ -c 20 --size 1000
 
 # Download chapters 19 to 22 for the manga Ajin Miura Tsuina very small
 $ python3 main.py -m http://mangapark.me/manga/ajin-miura-tsuina/ --chapters 19 22 --size 300
+
+#download chapters 22 to 24 for the manga Ajin Miura Tsuina
+$ python3 main.py -m http://mangapark.me/manga/ajin-miura-tsuina/ -cs 22 24
 ```
 
 `--size` is optional on both ways of downloading. Without it, it will not resize.
