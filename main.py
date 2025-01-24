@@ -14,6 +14,7 @@ import urllib.request
 import img2pdf
 from bs4 import BeautifulSoup
 from PIL import Image
+
 # from resizeimage import resizeimage
 from urllib.parse import urljoin, urlparse
 from selenium import webdriver
@@ -86,6 +87,7 @@ def parse_url_to_chapter_info(url):
         title, version, chapter = url_parts
     elif len(url_parts) == 4:
         title, _, version, chapter = url_parts
+
     else:
         print("The URL in question was: ", url)
         raise ValueError("Couldn't parse URL")
@@ -211,7 +213,6 @@ def download_chapter(url, height):
 
         # Find images after closing the pop-up
         imgs_wrappers = soup.find_all("img", {"class": "w-full h-full"})
-
         file_names = []
         for i in imgs_wrappers:
             img_url = strip_parameters_from_url(i['src'])
@@ -308,11 +309,11 @@ def download_manga(url, chapter=None, min_max=None, height=None):
                         chapter_no = int(chapter_text[3:])  # Ch. for earlier chapters
                     elif chapter_text.startswith("Chapter"):
                         chapter_no = int(chapter_text[7:].split(":")[0])  # Chapter for newer chapters, before the colon
+
                     chapters.append((chapter_no, chapter_url))
                 except ValueError:
                     print(f"Skipping invalid chapter number: {chapter_text}")
                     continue
-
 
     #below removed in this update. No longer needed wiht the latest implementation
     # for c in chapters[::-1]:
