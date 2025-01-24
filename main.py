@@ -5,6 +5,7 @@ Example:
     Download chapter 20 for the manga Ajin Miura Tsuina
         $ python3 main.py -m http://mangapark.me/manga/ajin-miura-tsuina/ -chapter 20
 """
+#import statements
 import re
 import os
 import sys
@@ -13,7 +14,8 @@ import urllib.request
 import img2pdf
 from bs4 import BeautifulSoup
 from PIL import Image
-from resizeimage import resizeimage
+
+# from resizeimage import resizeimage
 from urllib.parse import urljoin, urlparse
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -62,28 +64,30 @@ def download_image_with_headers(img_url, dir_filename, os_dir):
 
 def parse_url_to_chapter_info(url):
     """
-    Extract manga info from the URL, namely: ()
+    Extract manga info from the URL, namely: (title, version, chapter, url)
     :param url: a string that denotes the URL
     :return: 4-tuple containing the manga's title, version, chapter and url
     """
-# Ensure there are no redundant slashes in the URL.
+    # Ensure there are no redundant slashes in the URL.
     url = url.strip()  # Remove leading/trailing whitespaces
     parsed_url = urlparse(url)
     
-    # Fix if the URL contains an incorrect number of slashes
+    # Fix if the URL contains an incorrect number of slashes or is relative
     if parsed_url.scheme == '' or parsed_url.netloc == '':
-        url = 'https://' + url.lstrip('/')  # Prepend "https://" if it's a relative URL or malformed
-    
+        url = 'https://mangapark.me/' + url.lstrip('/')  # Prepend the base URL
+
     # Clean up the URL by removing parts we don't need
     url = re.sub(r"^https?://", '', url)  # Remove http:// or https://
     url = re.sub(r"mangapark.me", '', url)  # Remove the domain part
     url = re.sub(r"/manga/", '', url)  # Remove the "/manga/" path part
 
     # Ensure the URL structure is correct
-    if len(url.split("/")) == 3:
-        title, version, chapter = url.split("/")
-    elif len(url.split("/")) == 4:
-        title, _, version, chapter = url.split("/")
+    url_parts = url.split("/")
+    if len(url_parts) == 3:
+        title, version, chapter = url_parts
+    elif len(url_parts) == 4:
+        title, _, version, chapter = url_parts
+
     else:
         print("The URL in question was: ", url)
         raise ValueError("Couldn't parse URL")
@@ -209,7 +213,6 @@ def download_chapter(url, height):
 
         # Find images after closing the pop-up
         imgs_wrappers = soup.find_all("img", {"class": "w-full h-full"})
-
         file_names = []
         for i in imgs_wrappers:
             img_url = strip_parameters_from_url(i['src'])
@@ -296,11 +299,17 @@ def download_manga(url, chapter=None, min_max=None, height=None):
         chapter_link = div.find("a", {"class": "link-hover"})
         if chapter_link and "href" in chapter_link.attrs:
             chapter_url = chapter_link["href"]
-            # Extract chapter number from the text, e.g., "Ch.055"
             chapter_text = chapter_link.text.strip()
-            if chapter_text.startswith("Ch."):
+
+            # Check if the text starts with "Ch." or "Chapter"
+            if chapter_text.startswith("Ch.") or chapter_text.startswith("Chapter"):
                 try:
-                    chapter_no = float(chapter_text[3:])  # Extract number after "Ch."
+                    # Extract chapter number correctly
+                    if chapter_text.startswith("Ch."):
+                        chapter_no = int(chapter_text[3:])  # Ch. for earlier chapters
+                    elif chapter_text.startswith("Chapter"):
+                        chapter_no = int(chapter_text[7:].split(":")[0])  # Chapter for newer chapters, before the colon
+
                     chapters.append((chapter_no, chapter_url))
                 except ValueError:
                     print(f"Skipping invalid chapter number: {chapter_text}")
